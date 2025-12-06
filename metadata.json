@@ -1,0 +1,5 @@
+{
+  "name": "ResiGen - Generador de Informes de Residencia",
+  "description": "Aplicación para generar, editar y exportar informes de Residencia Profesional automatizados con Gemini, cumpliendo normativas institucionales.",
+  "requestFramePermissions": []
+}

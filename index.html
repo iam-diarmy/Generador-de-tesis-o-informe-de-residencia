@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ResiGen - Informe de Residencia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              serif: ['Times New Roman', 'serif'],
+              sans: ['Arial', 'sans-serif'],
+              verdana: ['Verdana', 'sans-serif'],
+              mono: ['Courier New', 'monospace'],
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Editor Styles */
+      [contenteditable]:empty:before {
+        content: attr(placeholder);
+        color: #9ca3af;
+        cursor: text;
+        display: block;
+      }
+      
+      /* Reset basic styles for content editable to look like Word */
+      b, strong { font-weight: bold; }
+      i, em { font-style: italic; }
+      u { text-decoration: underline; }
+      h1, h2, h3 { font-weight: bold; margin-bottom: 0.5em; }
+      ul { list-style-type: disc; margin-left: 1.5em; }
+      ol { list-style-type: decimal; margin-left: 1.5em; }
+
+      /* Robust Print styles for PDF export */
+      @media print {
+        @page { 
+            margin: 2cm; 
+            size: letter; 
+        }
+        
+        /* Hide everything by default */
+        body * {
+          visibility: hidden;
+        }
+
+        /* Reset Backgrounds */
+        body { 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact;
+            background: white !important;
+        }
+
+        /* Show only the report canvas and its children */
+        #report-canvas, #report-canvas * {
+          visibility: visible;
+        }
+
+        /* Position the report canvas at the top left */
+        #report-canvas {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-shadow: none !important;
+          border: none !important;
+          background: white !important;
+          overflow: visible !important;
+          height: auto !important;
+          display: block !important;
+        }
+        
+        /* Ensure no UI elements sneak in */
+        .no-print { display: none !important; }
+
+        /* Ensure text is black for printing */
+        * { color: black !important; text-shadow: none !important; }
+        
+        /* Page break handling */
+        h1, h2, h3 { page-break-after: avoid; }
+        img { page-break-inside: avoid; }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.31.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-100 text-gray-900">
+    <div id="root"></div>
+  </body>
+</html>
