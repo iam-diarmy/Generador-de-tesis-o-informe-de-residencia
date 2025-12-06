@@ -148,18 +148,6 @@ const ReportEditor: React.FC<ReportEditorProps> = ({
     document.body.removeChild(downloadLink);
   };
 
-  const handlePrint = () => {
-    // Set document title temporarily for the PDF filename
-    const originalTitle = document.title;
-    document.title = `Informe_Residencia_${new Date().toISOString().split('T')[0]}`;
-    
-    // Give browser time to update title then print
-    setTimeout(() => {
-        window.print();
-        document.title = originalTitle;
-    }, 100);
-  };
-
   return (
     <div className="flex h-screen overflow-hidden bg-gray-200">
       {/* Sidebar */}
@@ -215,9 +203,6 @@ const ReportEditor: React.FC<ReportEditorProps> = ({
              </div>
           </div>
           <div className="flex gap-3 px-4">
-            <button onClick={handlePrint} className="flex items-center px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 shadow-sm text-sm font-medium transition-colors">
-              <FileDown className="w-4 h-4 mr-2" /> Descargar PDF
-            </button>
             <button onClick={handleExportWord} className="flex items-center px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 shadow-sm text-sm font-medium transition-colors">
               <FileDown className="w-4 h-4 mr-2" /> Descargar Word
             </button>
@@ -292,7 +277,7 @@ const ReportEditor: React.FC<ReportEditorProps> = ({
                 )}
                 
                 {sections[activeSection].blocks.map((block, index) => (
-                    <div key={block.id} className="group relative mb-4">
+                    <div key={block.id} className="group relative mb-6 pb-2">
                         
                         {/* Render Block Content */}
                         {block.type === BlockType.TEXT ? (
@@ -316,12 +301,14 @@ const ReportEditor: React.FC<ReportEditorProps> = ({
                             <button onClick={() => removeBlock(activeSection, block.id)} className="p-1.5 bg-red-100 text-red-600 rounded shadow hover:bg-red-200" title="Eliminar Bloque"><Trash2 className="w-4 h-4"/></button>
                         </div>
 
-                        {/* Insertion Point (Between Blocks) */}
-                        <div className="absolute -bottom-3 left-0 w-full h-6 opacity-0 group-hover:opacity-100 z-10 flex items-center justify-center no-print transition-all">
-                             <div className="bg-white border border-gray-300 rounded-full shadow-lg flex scale-75 hover:scale-100 transition-transform cursor-pointer">
-                                <button onClick={() => addBlock(activeSection, BlockType.TEXT, '', index)} className="p-2 hover:bg-gray-100 rounded-l-full" title="Insertar Texto"><Type className="w-3 h-3 text-gray-600"/></button>
-                                <button onClick={() => handleGenerateImage(activeSection, index)} disabled={isImgGenerating} className="p-2 hover:bg-indigo-50 border-l border-r border-gray-200" title="Generar Imagen IA"><ImageIcon className="w-3 h-3 text-indigo-600"/></button>
-                                <button onClick={() => { setInsertIndex(index); fileInputRef.current?.click(); }} className="p-2 hover:bg-green-50 rounded-r-full" title="Subir Imagen"><Upload className="w-3 h-3 text-green-600"/></button>
+                        {/* Explicit Insert Toolbar After Block */}
+                        <div className="absolute -bottom-6 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition-all z-20 no-print pointer-events-none group-hover:pointer-events-auto">
+                             <div className="bg-white border border-gray-300 rounded-full shadow-lg flex items-center p-1 scale-90 hover:scale-100 transition-transform">
+                                <span className="text-[10px] text-gray-500 font-bold px-2 uppercase select-none">Insertar:</span>
+                                <button onClick={() => addBlock(activeSection, BlockType.TEXT, '', index)} className="p-1.5 hover:bg-gray-100 rounded-full text-gray-700 transition-colors" title="Insertar Texto"><Type className="w-4 h-4"/></button>
+                                <div className="w-px h-4 bg-gray-300 mx-1"></div>
+                                <button onClick={() => handleGenerateImage(activeSection, index)} className="p-1.5 hover:bg-indigo-50 rounded-full text-indigo-600 transition-colors" title="Generar Imagen IA"><ImageIcon className="w-4 h-4"/></button>
+                                <button onClick={() => { setInsertIndex(index); fileInputRef.current?.click(); }} className="p-1.5 hover:bg-green-50 rounded-full text-green-600 transition-colors" title="Subir Imagen"><Upload className="w-4 h-4"/></button>
                              </div>
                         </div>
                     </div>
