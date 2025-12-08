@@ -18,7 +18,8 @@ const INITIAL_DETAILS: ProjectDetails = {
   objectives: '',
   activities: '',
   resultsExpected: '',
-  areaCharacterization: ''
+  areaCharacterization: '',
+  attachments: []
 };
 
 const INITIAL_SECTIONS: Record<SectionKey, ReportSection> = Object.keys(SECTION_TITLES).reduce((acc, key) => {

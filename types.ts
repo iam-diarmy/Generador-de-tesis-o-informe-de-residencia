@@ -23,6 +23,12 @@ export interface InstitutionSettings {
   departmentName: string;
 }
 
+export interface Attachment {
+  name: string;
+  mimeType: string;
+  data: string; // Base64 string without prefix
+}
+
 export interface ProjectDetails {
   studentName: string;
   studentId: string; // No de control
@@ -38,6 +44,7 @@ export interface ProjectDetails {
   activities: string; // List of activities
   resultsExpected: string;
   areaCharacterization: string; // Context of the area
+  attachments: Attachment[]; // New field for reference documents
 }
 
 export type SectionKey = 

@@ -50,50 +50,67 @@ export const generateSectionContent = async (
     Área: ${details.areaCharacterization}
   `;
 
-  let prompt = "";
+  let promptText = "";
 
   switch (section) {
     case 'introduccion':
-      prompt = `Redacta la Introducción del informe. Explica brevemente el problema, cómo se abordó y la estructura. NO uses encabezados de nivel 1.`;
+      promptText = `Redacta la Introducción del informe. Explica brevemente el problema, cómo se abordó y la estructura. NO uses encabezados de nivel 1. Utiliza los documentos adjuntos si contienen información relevante.`;
       break;
     case 'justificacion':
-      prompt = `Redacta la Justificación. ¿Por qué es importante el proyecto? ¿A quién beneficia?`;
+      promptText = `Redacta la Justificación. ¿Por qué es importante el proyecto? ¿A quién beneficia?`;
       break;
     case 'objetivos':
-      prompt = `Redacta los Objetivos (General y Específicos). Usa viñetas para los específicos.`;
+      promptText = `Redacta los Objetivos (General y Específicos). Usa viñetas para los específicos.`;
       break;
     case 'caracterizacion':
-      prompt = `Redacta la Caracterización del área en que se participó (Departamento, funciones).`;
+      promptText = `Redacta la Caracterización del área en que se participó (Departamento, funciones).`;
       break;
     case 'problemas':
-      prompt = `Redacta los Problemas a resolver, priorizándolos.`;
+      promptText = `Redacta los Problemas a resolver, priorizándolos. Usa los documentos adjuntos si describen el problema.`;
       break;
     case 'alcances':
-      prompt = `Redacta los Alcances y Limitaciones del proyecto.`;
+      promptText = `Redacta los Alcances y Limitaciones del proyecto.`;
       break;
     case 'fundamento':
-      prompt = `Desarrolla el Fundamento Teórico brevemente sobre: ${details.activities}.`;
+      promptText = `Desarrolla el Fundamento Teórico brevemente sobre: ${details.activities}. Utiliza los documentos adjuntos como referencia teórica si aplica.`;
       break;
     case 'procedimiento':
-      prompt = `Redacta el Procedimiento y descripción de las actividades realizadas. Sé descriptivo.`;
+      promptText = `Redacta el Procedimiento y descripción de las actividades realizadas. Sé descriptivo. Basate fuertemente en los documentos adjuntos si son bitácoras o reportes.`;
       break;
     case 'resultados':
-      prompt = `Redacta la sección de Resultados obtenidos.`;
+      promptText = `Redacta la sección de Resultados obtenidos. Usa los documentos adjuntos si contienen evidencias.`;
       break;
     case 'conclusiones':
-      prompt = `Redacta Conclusiones y Recomendaciones.`;
+      promptText = `Redacta Conclusiones y Recomendaciones.`;
       break;
     case 'referencias':
-      prompt = `Genera 3 referencias en formato APA (ficticias si es necesario).`;
+      promptText = `Genera 3 referencias en formato APA (ficticias si es necesario).`;
       break;
     default:
       return "Sección no generable automáticamente.";
   }
 
+  // Build the multimodal payload
+  const parts: any[] = [
+    { text: `${context}\n\nInstrucción: ${promptText}\nNota: Si hay documentos adjuntos, úsalos para enriquecer el contenido, pero mantén el formato solicitado.` }
+  ];
+
+  // Add attachments if they exist
+  if (details.attachments && details.attachments.length > 0) {
+    details.attachments.forEach(att => {
+        parts.push({
+            inlineData: {
+                mimeType: att.mimeType,
+                data: att.data
+            }
+        });
+    });
+  }
+
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: `${context}\n\nInstrucción: ${prompt}`,
+      contents: { parts },
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
       },
@@ -103,7 +120,7 @@ export const generateSectionContent = async (
     return cleanMarkdown(rawText);
   } catch (error) {
     console.error("Gemini Text Gen Error:", error);
-    return "Hubo un error al conectar con el servicio de IA.";
+    return "Hubo un error al conectar con el servicio de IA o los archivos adjuntos son demasiado grandes.";
   }
 };
 

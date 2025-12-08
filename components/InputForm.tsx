@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ProjectDetails } from '../types';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, FileText, UploadCloud, X } from 'lucide-react';
 
 interface InputFormProps {
   details: ProjectDetails;
@@ -10,9 +10,44 @@ interface InputFormProps {
 }
 
 const InputForm: React.FC<InputFormProps> = ({ details, onChange, onGenerate, isGenerating }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     onChange({ ...details, [name]: value });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newAttachments = [...details.attachments];
+      Array.from(files).forEach((file: File) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          // Extract base64 data (remove data:application/pdf;base64, prefix)
+          const base64Data = result.split(',')[1];
+          
+          newAttachments.push({
+            name: file.name,
+            mimeType: file.type,
+            data: base64Data
+          });
+          
+          // Update state after reading last file (simplified for sync behavior)
+          onChange({ ...details, attachments: [...newAttachments] });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (index: number) => {
+    const newAttachments = [...details.attachments];
+    newAttachments.splice(index, 1);
+    onChange({ ...details, attachments: newAttachments });
   };
 
   const inputClass = "mt-1 block w-full rounded-md border border-gray-300 bg-white text-gray-900 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2.5 text-base";
@@ -79,6 +114,47 @@ const InputForm: React.FC<InputFormProps> = ({ details, onChange, onGenerate, is
               <input type="date" name="endDate" value={details.endDate} onChange={handleChange} className={inputClass} />
             </div>
           </div>
+        </div>
+
+        {/* REFERENCE DOCUMENTS (New Section) */}
+        <div className="md:col-span-2 space-y-5 bg-blue-50 p-6 rounded-lg border border-blue-100">
+          <h3 className="font-bold text-xl text-blue-900 border-b border-blue-200 pb-2 mb-4 flex items-center">
+            <FileText className="w-5 h-5 mr-2 text-blue-600" />
+            Documentos de Ayuda
+          </h3>
+          <p className="text-sm text-blue-700 mb-4 bg-white p-3 rounded border border-blue-100">
+            Sube reportes anteriores, bitácoras o notas (PDF, Imágenes) para que la IA tenga más contexto sobre tu trabajo.
+          </p>
+          
+          <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 flex flex-col items-center justify-center bg-blue-50/50 hover:bg-blue-100 transition-colors cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+             <UploadCloud className="w-10 h-10 text-blue-400 mb-2" />
+             <p className="text-blue-600 font-medium">Clic para subir documentos</p>
+             <p className="text-xs text-blue-400 mt-1">Soporta PDF, Imágenes (PNG, JPG)</p>
+             <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                multiple 
+                accept="application/pdf,image/png,image/jpeg,image/jpg" 
+                onChange={handleFileUpload} 
+             />
+          </div>
+
+          {details.attachments.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+               {details.attachments.map((file, idx) => (
+                 <div key={idx} className="flex items-center justify-between bg-white p-3 rounded border border-gray-200 shadow-sm">
+                    <div className="flex items-center overflow-hidden">
+                       <FileText className="w-4 h-4 text-gray-500 mr-2 flex-shrink-0" />
+                       <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                    </div>
+                    <button onClick={(e) => { e.stopPropagation(); removeAttachment(idx); }} className="text-red-400 hover:text-red-600 p-1">
+                       <X className="w-4 h-4" />
+                    </button>
+                 </div>
+               ))}
+            </div>
+          )}
         </div>
 
         {/* Context - Important for AI */}
